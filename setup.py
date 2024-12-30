@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name="aimsg",
     version="0.1.0",
-    py_modules=['cli', 'git_utils', 'openai_utils'],
+    py_modules=['cli', 'git_utils', 'openai_utils', 'utils'],  
     install_requires=[
         "openai>=1.0.0",
         "gitpython>=3.1.40",
