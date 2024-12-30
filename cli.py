@@ -12,6 +12,7 @@ from openai_utils import (
     DEFAULT_MODEL,
     MODEL_API_BASES
 )
+from utils import Spinner
 
 def get_config_dir():
     """Get the user's configuration directory."""
@@ -255,17 +256,17 @@ def commit(api_base):
         # Use command line api_base if provided, otherwise use from config
         api_base = api_base or config["openai_api_base"]
         
-        # Generate commit message
-        commit_message = generate_commit_message(
-            diff, 
-            config["openai_api_key"], 
-            api_base,
-            model=config["model"],
-            prompt_template=config["prompt"]
-        )
+        # Generate commit message with loading spinner
+        with Spinner(f"Generating commit message using {config['model'].value}..."):
+            commit_message = generate_commit_message(
+                diff, 
+                config["openai_api_key"], 
+                api_base,
+                model=config["model"],
+                prompt_template=config["prompt"]
+            )
         
         # Output the generated message
-        click.echo(f"\nUsing model: {config['model'].value}")
         click.echo("\nGenerated commit message:")
         click.echo("-" * 40)
         click.echo(commit_message)
