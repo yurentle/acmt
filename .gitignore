@@ -20,17 +20,16 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment
-.env
-config.env
-.venv
-env/
+# Virtual Environment
 venv/
 ENV/
+env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-.DS_Store
+
+# Project specific
+config.json

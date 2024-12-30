@@ -4,15 +4,15 @@ import click
 import json
 from dotenv import load_dotenv
 from pathlib import Path
-from git_utils import get_staged_diff
-from openai_utils import (
+from aimsg.git_utils import get_staged_diff
+from aimsg.openai_utils import (
     generate_commit_message,
     DEFAULT_PROMPT,
     Model,
     DEFAULT_MODEL,
     MODEL_API_BASES
 )
-from utils import Spinner
+from aimsg.utils import Spinner
 
 def get_config_dir():
     """Get the user's configuration directory."""

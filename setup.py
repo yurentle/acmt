@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="aimsg",
-    version="0.1.0",
-    py_modules=['cli', 'git_utils', 'openai_utils', 'utils'],  
+    version="0.1.2",
+    packages=find_packages(),
     install_requires=[
         "openai>=1.0.0",
         "gitpython>=3.1.40",
@@ -12,7 +12,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "aimsg=cli:cli",
+            "aimsg=aimsg.cli:cli",
         ],
     },
     author="yurentle",
