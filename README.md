@@ -76,6 +76,40 @@ aimsg commit
 
 # Show help
 aimsg --help
+
+# Configure custom prompt template
+aimsg prompt
+
+# Reset prompt template to default
+aimsg reset_prompt
+```
+
+### Custom Prompt Template
+
+You can customize the prompt template used for generating commit messages:
+
+```bash
+$ aimsg prompt
+```
+
+This will show the current prompt template and allow you to modify it. The template can use the following variables:
+- `{diff}`: The git diff content
+
+Example custom prompt template:
+```
+Based on this git diff, write a commit message:
+{diff}
+
+The commit message should:
+1. Start with a type (feat/fix/docs/style/refactor/test/chore)
+2. Include a scope in parentheses
+3. Have a brief description
+4. Be no longer than 72 characters
+```
+
+To reset the prompt template to default:
+```bash
+$ aimsg reset_prompt
 ```
 
 ## Example Output
