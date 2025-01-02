@@ -1,20 +1,105 @@
-from openai import OpenAI
 from enum import Enum
-import os
 from typing import Optional
+import openai
+from .utils import Spinner
 
 class Model(str, Enum):
+    # OpenAI Models
     GPT35 = "gpt-3.5-turbo"
+    GPT35_16K = "gpt-3.5-turbo-16k"
     GPT4 = "gpt-4"
+    GPT4_32K = "gpt-4-32k"
+    GPT4_TURBO = "gpt-4-1106-preview"
+    
+    # Anthropic Models
+    CLAUDE2 = "claude-2"
+    CLAUDE_INSTANT = "claude-instant-1"
+    
+    # Google Models
+    PALM2 = "palm-2"
+    GEMINI_PRO = "gemini-pro"
+    
+    # Chinese Models
+    QIANWEN = "qwen-turbo"           # 通义千问
+    QIANWEN_PLUS = "qwen-plus"       # 通义千问增强版
+    SPARK = "spark-v3"               # 讯飞星火
+    SPARK_V2 = "spark-v2"           # 讯飞星火V2
+    BAICHUAN = "baichuan-53b"       # 百川大模型
+    GLM4 = "chatglm-4"              # 智谱 GLM-4
+    GLM3_TURBO = "chatglm-turbo"    # 智谱 GLM-3-Turbo
+    ERNIE = "ernie-4.0"             # 文心一言
+    ERNIE_TURBO = "ernie-turbo"     # 文心一言 Turbo
+    KIMI = "kimi-v1"                # Moonshot AI 的 KIMI
+    HUNYUAN = "hunyuan"             # 腾讯混元
+    HUNYUAN_LITE = "hunyuan-lite"   # 腾讯混元 Lite
+    DOUBAO = "doubao-v1"            # 字节豆包
+    DOUBAO_TURBO = "doubao-turbo"   # 字节豆包 Turbo
+    
+    # Hosted Open Source Models
     DEEPSEEK = "deepseek-chat"
+    LLAMA2 = "meta-llama/llama-2-70b-chat"        # Replicate hosted
+    MISTRAL = "mistralai/mistral-7b-instruct"     # Together AI hosted
+    MIXTRAL = "mistralai/mixtral-8x7b-instruct"   # Together AI hosted
+    CODELLAMA = "meta-llama/codellama-34b-instruct" # Replicate hosted
 
 DEFAULT_MODEL = Model.GPT35
 
-# Model-specific API base URLs
 MODEL_API_BASES = {
+    # OpenAI
     Model.GPT35: "https://api.openai.com/v1",
+    Model.GPT35_16K: "https://api.openai.com/v1",
     Model.GPT4: "https://api.openai.com/v1",
-    Model.DEEPSEEK: "https://api.deepseek.com",
+    Model.GPT4_32K: "https://api.openai.com/v1",
+    Model.GPT4_TURBO: "https://api.openai.com/v1",
+    
+    # Anthropic
+    Model.CLAUDE2: "https://api.anthropic.com/v1",
+    Model.CLAUDE_INSTANT: "https://api.anthropic.com/v1",
+    
+    # Google
+    Model.PALM2: "https://generativelanguage.googleapis.com/v1beta",
+    Model.GEMINI_PRO: "https://generativelanguage.googleapis.com/v1",
+    
+    # 阿里云通义千问
+    Model.QIANWEN: "https://dashscope.aliyuncs.com/api/v1",
+    Model.QIANWEN_PLUS: "https://dashscope.aliyuncs.com/api/v1",
+    
+    # 讯飞星火
+    Model.SPARK: "https://spark-api.xf-yun.com/v3.1",
+    Model.SPARK_V2: "https://spark-api.xf-yun.com/v2.1",
+
+    # 百川
+    Model.BAICHUAN: "https://api.baichuan-ai.com/v1",
+    
+    # 智谱
+    Model.GLM4: "https://open.bigmodel.cn/api/v1",
+    Model.GLM3_TURBO: "https://open.bigmodel.cn/api/v1",
+    
+    # 文心
+    Model.ERNIE: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1",
+    Model.ERNIE_TURBO: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1",
+    
+    # Moonshot AI
+    Model.KIMI: "https://api.moonshot.cn/v1",
+    
+    # 腾讯混元
+    Model.HUNYUAN: "https://hunyuan.cloud.tencent.com/hyllm/v1",
+    Model.HUNYUAN_LITE: "https://hunyuan.cloud.tencent.com/hyllm/v1",
+    
+    # 字节豆包
+    Model.DOUBAO: "https://api.doubao.com/v1",
+    Model.DOUBAO_TURBO: "https://api.doubao.com/v1",
+    
+    # DeepSeek
+    Model.DEEPSEEK: "https://api.deepseek.com/v1",
+    
+    # Replicate
+    Model.LLAMA2: "https://api.replicate.com/v1",
+    Model.CODELLAMA: "https://api.replicate.com/v1",
+    
+    # Together
+    Model.MISTRAL: "https://api.together.xyz/v1",
+    Model.MIXTRAL: "https://api.together.xyz/v1",
 }
 
 DEFAULT_PROMPT = """Based on the following git diff, generate a concise and descriptive commit message that follows conventional commits format.
@@ -26,26 +111,107 @@ Add a blank line followed by a more detailed description if necessary.
 """
 
 def get_model_settings(model: Model):
-    """Get the appropriate settings for each model."""
-    if model == Model.GPT35:
+    """Get model specific settings."""
+    # OpenAI GPT-4 Models - 更高温度以增加创造性
+    if model in [Model.GPT4, Model.GPT4_32K, Model.GPT4_TURBO]:
+        return {
+            "temperature": 0.8,
+            "max_tokens": 150,
+            "system_message": "You are an expert programmer with deep understanding of code changes. Generate clear, concise, and insightful git commit messages."
+        }
+    
+    # Anthropic Claude Models - 更注重准确性
+    elif model in [Model.CLAUDE2, Model.CLAUDE_INSTANT]:
+        return {
+            "temperature": 0.6,
+            "max_tokens": 100,
+            "system_message": "You are Claude, an AI assistant focused on generating precise and accurate git commit messages. Focus on technical accuracy and clarity."
+        }
+    
+    # Google Models - 平衡的设置
+    elif model in [Model.PALM2, Model.GEMINI_PRO]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 120,
+            "system_message": "You are an AI assistant specialized in understanding code changes and generating appropriate git commit messages."
+        }
+    
+    # Chinese Models - 根据各自特点调整
+    elif model in [Model.QIANWEN, Model.QIANWEN_PLUS]:
         return {
             "temperature": 0.7,
             "max_tokens": 100,
-            "system_message": "You are a helpful assistant that generates clear and concise git commit messages."
+            "system_message": "你是通义千问助手，专注于生成清晰准确的代码提交信息。"
         }
+    elif model in [Model.SPARK, Model.SPARK_V2]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是讯飞星火助手，擅长理解代码变更并生成恰当的提交信息。"
+        }
+    elif model in [Model.GLM4, Model.GLM3_TURBO]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是 ChatGLM 助手，专注于代码理解和提交信息生成。"
+        }
+    elif model in [Model.ERNIE, Model.ERNIE_TURBO]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是文心一言助手，擅长分析代码变更并生成清晰的提交信息。"
+        }
+    elif model == Model.BAICHUAN:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是百川助手，专注于代码分析和提交信息生成。"
+        }
+    elif model == Model.KIMI:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是 KIMI 助手，专注于代码分析和生成高质量的提交信息。"
+        }
+    elif model in [Model.HUNYUAN, Model.HUNYUAN_LITE]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是腾讯混元助手，擅长分析代码变更并生成准确的提交信息。"
+        }
+    elif model in [Model.DOUBAO, Model.DOUBAO_TURBO]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "你是豆包助手，专注于代码理解和提交信息生成。"
+        }
+    
+    # Open Source Models - 使用托管服务
     elif model == Model.DEEPSEEK:
         return {
             "temperature": 0.7,
             "max_tokens": 100,
-            "system_message": "You are an expert programmer. Generate a clear and concise git commit message."
+            "system_message": "You are an expert programmer. Generate clear and concise git commit messages."
         }
-    elif model == Model.GPT4:
+    elif model == Model.CODELLAMA:
         return {
             "temperature": 0.7,
             "max_tokens": 100,
-            "system_message": "You are a helpful assistant that generates clear and concise git commit messages."
+            "system_message": "You are CodeLlama, an AI specialized in code understanding. Generate accurate and technical git commit messages."
         }
-    raise ValueError(f"Unknown model: {model}")
+    elif model in [Model.LLAMA2, Model.MISTRAL, Model.MIXTRAL]:
+        return {
+            "temperature": 0.7,
+            "max_tokens": 100,
+            "system_message": "You are an AI assistant. Generate clear and helpful git commit messages."
+        }
+    
+    # Default settings for GPT-3.5 and any new models
+    return {
+        "temperature": 0.7,
+        "max_tokens": 100,
+        "system_message": "You are a helpful assistant that generates clear and concise git commit messages."
+    }
 
 def generate_commit_message(diff, api_key, api_base=None, model=None, prompt_template=None):
     """Generate commit message using OpenAI API."""
@@ -69,7 +235,7 @@ def generate_commit_message(diff, api_key, api_base=None, model=None, prompt_tem
         return f"chore: update dependencies ({dependency_update})"
     
     # 使用 AI 生成提交信息
-    client = OpenAI(
+    client = openai.OpenAI(
         api_key=api_key,
         base_url=api_base or MODEL_API_BASES.get(model_name),
     )
@@ -82,8 +248,8 @@ def generate_commit_message(diff, api_key, api_base=None, model=None, prompt_tem
                     {"role": "system", "content": prompt_template or DEFAULT_PROMPT},
                     {"role": "user", "content": diff},
                 ],
-                temperature=0.7,
-                max_tokens=100,
+                temperature=get_model_settings(model_name)["temperature"],
+                max_tokens=get_model_settings(model_name)["max_tokens"],
                 n=1,
             )
             commit_msg = response.choices[0].message.content.strip()
