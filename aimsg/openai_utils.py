@@ -1,7 +1,8 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 import openai
 from .utils import Spinner
+from .config import get_custom_model
 
 class Model(str, Enum):
     # OpenAI Models
@@ -213,7 +214,31 @@ def get_model_settings(model: Model):
         "system_message": "You are a helpful assistant that generates clear and concise git commit messages."
     }
 
-def generate_commit_message(diff, api_key, api_base=None, model=None, prompt_template=None):
+def get_model_api_base(model: Union[Model, str]) -> Optional[str]:
+    """获取模型的 API 基础 URL"""
+    if isinstance(model, Model):
+        return MODEL_API_BASES.get(model)
+    
+    # 检查是否是自定义模型
+    custom_model = get_custom_model(model)
+    if custom_model:
+        return custom_model['api_base']
+    
+    return None
+
+def get_model_id(model: Union[Model, str]) -> str:
+    """获取模型 ID"""
+    if isinstance(model, Model):
+        return model.value
+    
+    # 检查是否是自定义模型
+    custom_model = get_custom_model(model)
+    if custom_model:
+        return custom_model['model_id']
+    
+    return model  # 如果不是枚举也不是自定义模型，直接返回原值
+
+def generate_commit_message(diff: str, api_key: str, api_base: Optional[str] = None, model: Optional[Union[Model, str]] = None, prompt_template: Optional[str] = None) -> str:
     """Generate commit message using OpenAI API."""
     model_name = model or DEFAULT_MODEL
     
@@ -234,22 +259,26 @@ def generate_commit_message(diff, api_key, api_base=None, model=None, prompt_tem
     if dependency_update and not diff:
         return f"chore: update dependencies ({dependency_update})"
     
+    # 获取模型 ID 和 API base
+    model_id = get_model_id(model_name)
+    effective_api_base = api_base or get_model_api_base(model_name)
+    
     # 使用 AI 生成提交信息
     client = openai.OpenAI(
         api_key=api_key,
-        base_url=api_base or MODEL_API_BASES.get(model_name),
+        base_url=effective_api_base,
     )
 
     with Spinner("Generating commit message..."):
         try:
             response = client.chat.completions.create(
-                model=model_name,
+                model=model_id,
                 messages=[
                     {"role": "system", "content": prompt_template or DEFAULT_PROMPT},
                     {"role": "user", "content": diff},
                 ],
-                temperature=get_model_settings(model_name)["temperature"],
-                max_tokens=get_model_settings(model_name)["max_tokens"],
+                temperature=get_model_settings(model_name)["temperature"] if isinstance(model_name, Model) else 0.7,
+                max_tokens=get_model_settings(model_name)["max_tokens"] if isinstance(model_name, Model) else 100,
                 n=1,
             )
             commit_msg = response.choices[0].message.content.strip()

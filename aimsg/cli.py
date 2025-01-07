@@ -13,6 +13,10 @@ from aimsg.openai_utils import (
     MODEL_API_BASES
 )
 from aimsg.utils import Spinner
+from aimsg.config import (
+    add_custom_model, remove_custom_model, list_custom_models,
+    set_default_model, get_default_model, get_custom_model
+)
 
 def get_config_dir():
     """Get the user's configuration directory."""
@@ -279,6 +283,197 @@ def commit(api_base):
         else:
             click.echo("Commit cancelled.")
 
+    except Exception as e:
+        click.echo(f"Error: {str(e)}", err=True)
+
+@cli.group()
+def model():
+    """Manage custom models"""
+    pass
+
+@model.command(name='add')
+@click.argument('name')
+@click.argument('model_id')
+@click.argument('api_base')
+def add_model(name, model_id, api_base):
+    """Add a custom model"""
+    try:
+        add_custom_model(name, model_id, api_base)
+        click.echo(f"Successfully added custom model: {name}")
+    except Exception as e:
+        click.echo(f"Error: {str(e)}", err=True)
+
+@model.command(name='remove')
+@click.argument('name')
+def remove_model(name):
+    """Remove a custom model"""
+    try:
+        remove_custom_model(name)
+        click.echo(f"Successfully removed custom model: {name}")
+    except Exception as e:
+        click.echo(f"Error: {str(e)}", err=True)
+
+@model.command(name='use')
+@click.argument('name')
+def use_model(name):
+    """Set the default model to use"""
+    try:
+        # 检查是否是内置模型
+        try:
+            Model(name)
+            set_default_model(name)
+            click.echo(f"Successfully set default model to: {name}")
+            return
+        except ValueError:
+            pass
+        
+        # 检查是否是自定义模型
+        custom_model = get_custom_model(name)
+        if custom_model:
+            set_default_model(name)
+            click.echo(f"Successfully set default model to: {name}")
+        else:
+            click.echo(f"Error: Model '{name}' not found. Use 'aimsg model list' to see available models.")
+            
+    except Exception as e:
+        click.echo(f"Error: {str(e)}", err=True)
+
+@model.command(name='list')
+def list_models():
+    """List all available models, including built-in and custom models"""
+    try:
+        # 获取当前默认模型
+        default_model = get_default_model()
+        
+        # 显示内置模型
+        click.echo("Built-in models:")
+        
+        # 按类别组织模型
+        categories = {
+            "OpenAI Models": [],
+            "Anthropic Models": [],
+            "Google Models": [],
+            "Chinese Models": [],
+            "Open Source Models": []
+        }
+        
+        # 将模型分类
+        for model in Model:
+            if "gpt" in model.value:
+                categories["OpenAI Models"].append(model)
+            elif "claude" in model.value:
+                categories["Anthropic Models"].append(model)
+            elif "palm" in model.value or "gemini" in model.value:
+                categories["Google Models"].append(model)
+            elif any(name in model.value for name in ["qwen", "spark", "baichuan", "glm", "ernie", "kimi", "hunyuan", "doubao"]):
+                categories["Chinese Models"].append(model)
+            elif any(name in model.value for name in ["deepseek", "llama", "mistral", "mixtral", "codellama"]):
+                categories["Open Source Models"].append(model)
+        
+        # 显示每个类别的模型
+        for category, models in categories.items():
+            if models:
+                click.echo(f"\n{category}:")
+                for model in models:
+                    api_base = MODEL_API_BASES.get(model, "Default OpenAI endpoint")
+                    # 标记默认模型
+                    default_mark = " (default)" if model.value == default_model else ""
+                    click.echo(f"  {model.value}{default_mark}")
+                    click.echo(f"    API Base: {api_base}")
+        
+        # 显示自定义模型
+        custom_models = list_custom_models()
+        if custom_models:
+            click.echo("\nCustom models:")
+            for name, config in custom_models.items():
+                # 标记默认模型
+                default_mark = " (default)" if name == default_model else ""
+                click.echo(f"  {name}{default_mark}:")
+                click.echo(f"    Model ID: {config['model_id']}")
+                click.echo(f"    API Base: {config['api_base']}")
+        
+    except Exception as e:
+        click.echo(f"Error: {str(e)}", err=True)
+
+@model.command(name='select')
+def select_model():
+    """Select a model interactively"""
+    try:
+        # 获取当前默认模型
+        default_model = get_default_model()
+        
+        # 收集所有模型
+        all_models = []
+        
+        # 收集内置模型
+        categories = {
+            "OpenAI Models": [],
+            "Anthropic Models": [],
+            "Google Models": [],
+            "Chinese Models": [],
+            "Open Source Models": []
+        }
+        
+        for model in Model:
+            if "gpt" in model.value:
+                categories["OpenAI Models"].append(model)
+            elif "claude" in model.value:
+                categories["Anthropic Models"].append(model)
+            elif "palm" in model.value or "gemini" in model.value:
+                categories["Google Models"].append(model)
+            elif any(name in model.value for name in ["qwen", "spark", "baichuan", "glm", "ernie", "kimi", "hunyuan", "doubao"]):
+                categories["Chinese Models"].append(model)
+            elif any(name in model.value for name in ["deepseek", "llama", "mistral", "mixtral", "codellama"]):
+                categories["Open Source Models"].append(model)
+        
+        # 显示所有模型
+        click.echo("Available models:")
+        click.echo("---------------")
+        
+        index = 1
+        model_map = {}
+        
+        # 显示内置模型
+        for category, models in categories.items():
+            if models:
+                click.echo(f"\n{category}:")
+                for model in models:
+                    default_mark = " (current)" if model.value == default_model else ""
+                    click.echo(f"{index}. {model.value}{default_mark}")
+                    model_map[index] = model.value
+                    index += 1
+        
+        # 显示自定义模型
+        custom_models = list_custom_models()
+        if custom_models:
+            click.echo("\nCustom Models:")
+            for name in custom_models:
+                default_mark = " (current)" if name == default_model else ""
+                click.echo(f"{index}. {name}{default_mark}")
+                model_map[index] = name
+                index += 1
+        
+        # 获取用户选择
+        while True:
+            try:
+                choice = click.prompt("\nEnter the number of the model to use (0 to cancel)", type=int)
+                if choice == 0:
+                    click.echo("Operation cancelled")
+                    return
+                
+                if choice in model_map:
+                    selected_model = model_map[choice]
+                    set_default_model(selected_model)
+                    click.echo(f"\nSuccessfully set default model to: {selected_model}")
+                    return
+                else:
+                    click.echo("Invalid choice. Please try again.")
+            except click.exceptions.Abort:
+                click.echo("\nOperation cancelled")
+                return
+            except ValueError:
+                click.echo("Please enter a valid number")
+        
     except Exception as e:
         click.echo(f"Error: {str(e)}", err=True)
 

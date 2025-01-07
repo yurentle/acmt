@@ -11,8 +11,27 @@ A CLI tool that generates commit messages using AI models based on your git repo
 - 🤖 Supports multiple AI models:
   - OpenAI GPT-3.5 Turbo
   - DeepSeek Chat
-- 🎯 Follows conventional commits format
-- 🛠️ Customizable prompt templates
+  - OpenAI GPT-4
+  - Anthropic Claude-2
+  - Google PaLM 2
+  - Chinese Models:
+    - Alibaba Qwen
+    - iFlytek Spark
+    - Baichuan
+    - Zhipu ChatGLM
+    - Baidu ERNIE
+    - Moonshot AI KIMI
+    - Tencent Hunyuan
+    - ByteDance Doubao
+  - Open Source Models (via hosted services):
+    - Llama 2
+    - Mistral
+    - Mixtral
+    - CodeLlama
+- 🔧 Supports custom models and API endpoints
+- 📝 Follows conventional commits format
+- 🔄 Handles dependency updates gracefully
+- 🎯 Customizable prompt templates
 - 🔑 Secure API key storage
 - 🌐 Smart API endpoint management
 - 📝 Clear and concise commit messages
@@ -39,103 +58,152 @@ This will guide you through:
 Each model has its default API endpoint:
 - GPT-3.5 Turbo: `https://api.openai.com/v1`
 - DeepSeek Chat: `https://api.deepseek.com`
+- GPT-4: `https://api.openai.com/v1`
+- Claude-2: `https://api.anthropic.com/v1`
+- PaLM 2: `https://api.google.com/v1`
 
 ## Usage
 
-Simply use the `aimsg` command in any git repository:
-
+1. Stage your changes:
 ```bash
-# Stage your changes first
 git add .
+```
 
-# Generate commit message for staged changes
+2. Generate commit message:
+```bash
+# Using default model (GPT-3.5)
 aimsg commit
 
-# Show help
-aimsg --help
+# Using a specific model
+aimsg commit --model gpt4
+aimsg commit --model claude2
+aimsg commit --model qwen-turbo
 
-# Configure custom prompt template
-aimsg prompt
+# Using custom API base URL
+aimsg commit --api-base https://your-api-endpoint.com/v1
 
-# Reset prompt template to default
-aimsg reset_prompt
-
-# Change the AI model or API endpoint
-aimsg model
+# List all available models
+aimsg model list
 ```
 
-### Model Selection
+## Model Management
 
-You can choose or change the AI model:
-
+1. List all available models:
 ```bash
-$ aimsg model
+aimsg model list
 ```
 
-The tool will show you:
-- Available models with their default API endpoints
-- Your current configuration
-- Option to modify the API endpoint (when applicable)
-
-Some models (like DeepSeek) require using their specific API endpoints, which will be automatically configured for you.
-
-### Custom Prompt Template
-
-You can customize the prompt template used for generating commit messages:
-
+2. Select model interactively:
 ```bash
-$ aimsg prompt
+aimsg model select
 ```
 
-This will show the current prompt template and allow you to modify it. The template can use the following variables:
-- `{diff}`: The git diff content
-
-Example custom prompt template:
-```
-Based on this git diff, write a commit message:
-{diff}
-
-The commit message should:
-1. Start with a type (feat/fix/docs/style/refactor/test/chore)
-2. Include a scope in parentheses
-3. Have a brief description
-4. Be no longer than 72 characters
-```
-
-To reset the prompt template to default:
+3. Set default model directly:
 ```bash
-$ aimsg reset_prompt
+# Use GPT-4 as default
+aimsg model use gpt4
+
+# Use Claude 2 as default
+aimsg model use claude2
+
+# Use custom model as default
+aimsg model use my-model
 ```
 
-## Example Output
-
+4. Add a custom model:
 ```bash
-$ git add .
-$ aimsg commit
-
-Generated commit message:
-----------------------------------------
-feat(cli): add AI-powered commit message generation
-----------------------------------------
-
-Do you want to commit with this message? [y/N]: y
-Changes committed successfully!
+aimsg model add my-model model-id https://api.example.com/v1
 ```
 
-## Contributing
+5. Remove a custom model:
+```bash
+aimsg model remove my-model
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Examples of Custom Model Configuration
+
+1. Self-hosted Llama 2:
+```bash
+aimsg model add my-llama llama-2-70b-chat http://localhost:8000/v1
+aimsg model use my-llama  # Set as default
+```
+
+2. Alternative OpenAI endpoint:
+```bash
+aimsg model add azure-gpt gpt-35-turbo https://your-azure-endpoint.com/v1
+aimsg model use azure-gpt  # Set as default
+```
+
+3. Other provider's model:
+```bash
+aimsg model add claude-3 claude-3 https://api.anthropic.com/v1
+aimsg model use claude-3  # Set as default
+```
+
+## Environment Variables
+
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `OPENAI_API_BASE`: Custom API base URL (optional)
+
+## Custom Models
+
+You can add and manage custom models:
+
+1. Add a custom model:
+```bash
+aimsg model add my-model model-id https://api.example.com/v1
+```
+
+2. Remove a custom model:
+```bash
+aimsg model remove my-model
+```
+
+3. Use a custom model:
+```bash
+aimsg commit --model my-model
+```
+
+## Supported Models
+
+Here are some of the pre-configured models you can use:
+
+### OpenAI Models
+- `gpt-3.5-turbo`
+- `gpt-3.5-turbo-16k`
+- `gpt-4`
+- `gpt-4-32k`
+- `gpt-4-1106-preview`
+
+### Anthropic Models
+- `claude-2`
+- `claude-instant-1`
+
+### Google Models
+- `palm-2`
+- `gemini-pro`
+
+### Chinese Models
+- Alibaba Qwen: `qwen-turbo`, `qwen-plus`
+- iFlytek Spark: `spark-v3`, `spark-v2`
+- Baichuan: `baichuan-53b`
+- Zhipu GLM: `chatglm-4`, `chatglm-turbo`
+- Baidu ERNIE: `ernie-4.0`, `ernie-turbo`
+- Moonshot KIMI: `kimi-v1`
+- Tencent Hunyuan: `hunyuan`, `hunyuan-lite`
+- ByteDance Doubao: `doubao-v1`, `doubao-turbo`
+
+### Open Source Models (Hosted)
+- `deepseek-chat`
+- `llama-2-70b-chat` (via Replicate)
+- `mistral-7b-instruct` (via Together AI)
+- `mixtral-8x7b-instruct` (via Together AI)
+- `codellama-34b-instruct` (via Replicate)
+
+## Development
+
+See [Development Guide](lib/dev.md) for instructions on setting up the development environment.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Troubleshooting
-
-If you get "command not found: aimsg" after installation:
-1. Make sure you've added the user-level bin directory to your PATH as shown in the installation section
-2. Check if the aimsg command exists in the bin directory:
-```bash
-ls ~/Library/Python/3.12/bin/aimsg  # Adjust Python version as needed
-```
-3. If the command exists but still isn't found, try restarting your terminal
+MIT
