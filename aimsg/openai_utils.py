@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional, Union, Dict
 import openai
 from .utils import Spinner
 from .config import get_custom_model
@@ -43,65 +43,37 @@ class Model(str, Enum):
     MIXTRAL = "mistralai/mixtral-8x7b-instruct"   # Together AI hosted
     CODELLAMA = "meta-llama/codellama-34b-instruct" # Replicate hosted
 
+    @property
+    def api_base(self) -> str:
+        """获取模型的默认 API base"""
+        api_bases = {
+            "claude-2": "https://api.anthropic.com/v1",
+            "claude-instant-1": "https://api.anthropic.com/v1",
+            "palm-2": "https://generativelanguage.googleapis.com/v1beta",
+            "gemini-pro": "https://generativelanguage.googleapis.com/v1",
+            "qwen-turbo": "https://dashscope.aliyuncs.com/api/v1",
+            "qwen-plus": "https://dashscope.aliyuncs.com/api/v1",
+            "spark-v3": "https://spark-api.xf-yun.com/v3.1",
+            "spark-v2": "https://spark-api.xf-yun.com/v2.1",
+            "baichuan-53b": "https://api.baichuan-ai.com/v1",
+            "chatglm-4": "https://open.bigmodel.cn/api/v1",
+            "chatglm-turbo": "https://open.bigmodel.cn/api/v1",
+            "ernie-4.0": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1",
+            "ernie-turbo": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1",
+            "kimi-v1": "https://api.moonshot.cn/v1",
+            "hunyuan": "https://hunyuan.cloud.tencent.com/hyllm/v1",
+            "hunyuan-lite": "https://hunyuan.cloud.tencent.com/hyllm/v1",
+            "doubao-v1": "https://api.doubao.com/v1",
+            "doubao-turbo": "https://api.doubao.com/v1",
+            "deepseek-chat": "https://api.deepseek.com/v1",
+            "meta-llama/llama-2-70b-chat": "https://api.replicate.com/v1",
+            "mistralai/mistral-7b-instruct": "https://api.together.xyz/v1",
+            "mistralai/mixtral-8x7b-instruct": "https://api.together.xyz/v1",
+            "meta-llama/codellama-34b-instruct": "https://api.replicate.com/v1",
+        }
+        return api_bases.get(self.value, "https://api.openai.com/v1")
+
 DEFAULT_MODEL = Model.GPT35
-
-MODEL_API_BASES = {
-    # OpenAI
-    Model.GPT35: "https://api.openai.com/v1",
-    Model.GPT35_16K: "https://api.openai.com/v1",
-    Model.GPT4: "https://api.openai.com/v1",
-    Model.GPT4_32K: "https://api.openai.com/v1",
-    Model.GPT4_TURBO: "https://api.openai.com/v1",
-    
-    # Anthropic
-    Model.CLAUDE2: "https://api.anthropic.com/v1",
-    Model.CLAUDE_INSTANT: "https://api.anthropic.com/v1",
-    
-    # Google
-    Model.PALM2: "https://generativelanguage.googleapis.com/v1beta",
-    Model.GEMINI_PRO: "https://generativelanguage.googleapis.com/v1",
-    
-    # 阿里云通义千问
-    Model.QIANWEN: "https://dashscope.aliyuncs.com/api/v1",
-    Model.QIANWEN_PLUS: "https://dashscope.aliyuncs.com/api/v1",
-    
-    # 讯飞星火
-    Model.SPARK: "https://spark-api.xf-yun.com/v3.1",
-    Model.SPARK_V2: "https://spark-api.xf-yun.com/v2.1",
-
-    # 百川
-    Model.BAICHUAN: "https://api.baichuan-ai.com/v1",
-    
-    # 智谱
-    Model.GLM4: "https://open.bigmodel.cn/api/v1",
-    Model.GLM3_TURBO: "https://open.bigmodel.cn/api/v1",
-    
-    # 文心
-    Model.ERNIE: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1",
-    Model.ERNIE_TURBO: "https://aip.baidubce.com/rpc/2.0/ai_custom/v1",
-    
-    # Moonshot AI
-    Model.KIMI: "https://api.moonshot.cn/v1",
-    
-    # 腾讯混元
-    Model.HUNYUAN: "https://hunyuan.cloud.tencent.com/hyllm/v1",
-    Model.HUNYUAN_LITE: "https://hunyuan.cloud.tencent.com/hyllm/v1",
-    
-    # 字节豆包
-    Model.DOUBAO: "https://api.doubao.com/v1",
-    Model.DOUBAO_TURBO: "https://api.doubao.com/v1",
-    
-    # DeepSeek
-    Model.DEEPSEEK: "https://api.deepseek.com/v1",
-    
-    # Replicate
-    Model.LLAMA2: "https://api.replicate.com/v1",
-    Model.CODELLAMA: "https://api.replicate.com/v1",
-    
-    # Together
-    Model.MISTRAL: "https://api.together.xyz/v1",
-    Model.MIXTRAL: "https://api.together.xyz/v1",
-}
 
 DEFAULT_PROMPT = """Based on the following git diff, generate a concise and descriptive commit message that follows conventional commits format.
 Focus on the "what" and "why" of the changes.
@@ -217,7 +189,7 @@ def get_model_settings(model: Model):
 def get_model_api_base(model: Union[Model, str]) -> Optional[str]:
     """获取模型的 API 基础 URL"""
     if isinstance(model, Model):
-        return MODEL_API_BASES.get(model)
+        return model.api_base
     
     # 检查是否是自定义模型
     custom_model = get_custom_model(model)
