@@ -7,11 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/aimsg
-    permissions:
-      id-token: write  # 用于 OIDC 身份验证
     
     steps:
     - uses: actions/checkout@v4
@@ -31,3 +26,5 @@ jobs:
     
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}  # 使用 Repository secrets
