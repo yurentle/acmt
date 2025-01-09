@@ -9,25 +9,24 @@ A CLI tool that generates commit messages using AI models based on your git repo
 ## Features
 
 - 🤖 Supports multiple AI models:
-  - OpenAI GPT-3.5 Turbo
   - DeepSeek Chat
+  - OpenAI GPT-3.5 Turbo
   - OpenAI GPT-4
   - Anthropic Claude-2
   - Google PaLM 2
-  - Chinese Models:
-    - Alibaba Qwen
-    - iFlytek Spark
-    - Baichuan
-    - Zhipu ChatGLM
-    - Baidu ERNIE
-    - Moonshot AI KIMI
-    - Tencent Hunyuan
-    - ByteDance Doubao
-  - Open Source Models (via hosted services):
-    - Llama 2
-    - Mistral
-    - Mixtral
-    - CodeLlama
+  - Alibaba Qwen
+  - iFlytek Spark
+  - Baichuan
+  - Zhipu ChatGLM
+  - Baidu ERNIE
+  - Moonshot AI KIMI
+  - Tencent Hunyuan
+  - ByteDance Doubao
+  - Third-party Hosted Models:
+    - Llama 2 (by Replicate)
+    - Mistral (by Together AI)
+    - Mixtral (by Together AI)
+    - CodeLlama (by Replicate)
 - 🔧 Supports custom models and API endpoints
 - 📝 Follows conventional commits format
 - 🔄 Handles dependency updates gracefully
@@ -56,11 +55,31 @@ This will guide you through:
 3. Configuring the API endpoint (if needed)
 
 Each model has its default API endpoint:
-- GPT-3.5 Turbo: `https://api.openai.com/v1`
-- DeepSeek Chat: `https://api.deepseek.com`
-- GPT-4: `https://api.openai.com/v1`
-- Claude-2: `https://api.anthropic.com/v1`
-- PaLM 2: `https://api.google.com/v1`
+
+### OpenAI Models
+- OpenAI GPT Models: `https://api.openai.com/v1`
+
+### Anthropic Models
+- Claude Models: `https://api.anthropic.com/v1`
+
+### Google Models
+- PaLM & Gemini: `https://generativelanguage.googleapis.com/v1`
+
+### Chinese Models
+- DeepSeek: `https://api.deepseek.com/v1`
+- Aliyun Qwen: `https://dashscope.aliyuncs.com/api/v1`
+- iFlytek Spark: `https://spark-api.xf-yun.com/v3.1`
+- Zhipu GLM: `https://open.bigmodel.cn/api/v1`
+- Baidu ERNIE: `https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop`
+- Moonshot KIMI: `https://api.moonshot.cn/v1`
+- Tencent Hunyuan: `https://hunyuan.cloud.tencent.com/hyllm/v1`
+- ByteDance Doubao: `https://api.doubao.com/v1`
+
+### Third-party Hosted Models
+- Replicate: `https://api.replicate.com/v1`
+- Together AI: `https://api.together.xyz/v1`
+
+You can customize these endpoints during initialization or by using environment variables.
 
 ## Usage
 
@@ -93,29 +112,12 @@ aimsg model list
 aimsg model list
 ```
 
-2. Select model interactively:
-```bash
-aimsg model select
-```
-
-3. Set default model directly:
-```bash
-# Use GPT-4 as default
-aimsg model use gpt4
-
-# Use Claude 2 as default
-aimsg model use claude2
-
-# Use custom model as default
-aimsg model use my-model
-```
-
-4. Add a custom model:
+2. Add a custom model:
 ```bash
 aimsg model add my-model model-id https://api.example.com/v1
 ```
 
-5. Remove a custom model:
+3. Remove a custom model:
 ```bash
 aimsg model remove my-model
 ```
@@ -125,48 +127,24 @@ aimsg model remove my-model
 1. Self-hosted Llama 2:
 ```bash
 aimsg model add my-llama llama-2-70b-chat http://localhost:8000/v1
-aimsg model use my-llama  # Set as default
+aimsg init  # Then select my-llama from the list
 ```
 
 2. Alternative OpenAI endpoint:
 ```bash
 aimsg model add azure-gpt gpt-35-turbo https://your-azure-endpoint.com/v1
-aimsg model use azure-gpt  # Set as default
+aimsg init  # Then select azure-gpt from the list
 ```
 
 3. Other provider's model:
 ```bash
 aimsg model add claude-3 claude-3 https://api.anthropic.com/v1
-aimsg model use claude-3  # Set as default
-```
-
-## Environment Variables
-
-- `OPENAI_API_KEY`: Your OpenAI API key
-- `OPENAI_API_BASE`: Custom API base URL (optional)
-
-## Custom Models
-
-You can add and manage custom models:
-
-1. Add a custom model:
-```bash
-aimsg model add my-model model-id https://api.example.com/v1
-```
-
-2. Remove a custom model:
-```bash
-aimsg model remove my-model
-```
-
-3. Use a custom model:
-```bash
-aimsg commit --model my-model
+aimsg init  # Then select claude-3 from the list
 ```
 
 ## Supported Models
 
-Here are some of the pre-configured models you can use:
+Here are all the pre-configured models you can use:
 
 ### OpenAI Models
 - `gpt-3.5-turbo`
@@ -184,25 +162,57 @@ Here are some of the pre-configured models you can use:
 - `gemini-pro`
 
 ### Chinese Models
-- Alibaba Qwen: `qwen-turbo`, `qwen-plus`
-- iFlytek Spark: `spark-v3`, `spark-v2`
-- Baichuan: `baichuan-53b`
-- Zhipu GLM: `chatglm-4`, `chatglm-turbo`
-- Baidu ERNIE: `ernie-4.0`, `ernie-turbo`
-- Moonshot KIMI: `kimi-v1`
-- Tencent Hunyuan: `hunyuan`, `hunyuan-lite`
-- ByteDance Doubao: `doubao-v1`, `doubao-turbo`
+- Aliyun
+  - `qwen-turbo`
+  - `qwen-plus`
+- iFlytek
+  - `spark-v3`
+  - `spark-v2`
+- Zhipu
+  - `chatglm-4`
+  - `chatglm-turbo`
+- Baidu
+  - `ernie-4.0`
+  - `ernie-turbo`
+- Moonshot
+  - `kimi-v1`
+- Tencent
+  - `hunyuan`
+  - `hunyuan-lite`
+- ByteDance
+  - `doubao-v1`
+  - `doubao-turbo`
 
 ### Open Source Models (Hosted)
-- `deepseek-chat`
-- `llama-2-70b-chat` (via Replicate)
-- `mistral-7b-instruct` (via Together AI)
-- `mixtral-8x7b-instruct` (via Together AI)
-- `codellama-34b-instruct` (via Replicate)
+- DeepSeek
+  - `deepseek-chat`
+- Replicate (提供托管服务)
+  - `meta-llama/llama-2-70b-chat`
+  - `meta-llama/codellama-34b-instruct`
+- Together AI (提供托管服务)
+  - `mistralai/mistral-7b-instruct`
+  - `mistralai/mixtral-8x7b-instruct`
 
-## Development
+## Environment Variables
 
-See [Development Guide](lib/dev.md) for instructions on setting up the development environment.
+The following environment variables can be used to configure the tool:
+
+- `AIMSG_API_KEY`: Your API key for the AI service
+- `AIMSG_API_BASE`: Base URL for the API service (optional)
+
+You can set these in your shell:
+
+```bash
+export AIMSG_API_KEY=your-api-key
+export AIMSG_API_BASE=https://api.example.com/v1
+```
+
+Or use a `.env` file in your project:
+
+```env
+AIMSG_API_KEY=your-api-key
+AIMSG_API_BASE=https://api.example.com/v1
+```
 
 ## License
 
