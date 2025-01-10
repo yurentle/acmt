@@ -29,9 +29,9 @@ def commit():
         if not api_key:
             raise ValueError("API key is required. Please run 'aimsg init' to configure")
             
-        # 获取 diff
-        diff = get_staged_diff()
-        if not diff:
+        # 获取 diff 和依赖文件列表
+        diff, dependency_files = get_staged_diff()
+        if not diff and not dependency_files:
             click.echo("No staged changes found. Please stage your changes first using 'git add'.", err=True)
             return
         
@@ -41,25 +41,32 @@ def commit():
         
         # 获取提示模板
         prompt = config.get("prompt")
-        
+
         # 生成提交消息
-        message = generate_commit_message(diff, api_key, api_base, model, prompt)
-        
+        commit_message = generate_commit_message(
+            diff=diff,
+            api_key=api_key,
+            api_base=api_base,
+            model=model,
+            prompt_template=prompt,
+            dependency_files=dependency_files
+        )
+              
         # 显示生成的消息
         click.echo("Generated commit message:")
         click.echo("-" * 40)
-        click.echo(message)
+        click.echo(commit_message)
         click.echo("-" * 40)
         
         # 询问是否提交
         if click.confirm("Do you want to commit with this message?"):
-            if commit_with_message(message):
+            if commit_with_message(commit_message):
                 click.echo("Changes committed successfully!")
             else:
                 click.echo("Failed to commit changes", err=True)
         else:
-            click.echo("Commit cancelled")
-        
+            click.echo("Commit cancelled.") 
+
     except Exception as e:
         click.echo(f"Error: {str(e)}", err=True)
 

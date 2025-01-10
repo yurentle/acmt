@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, List
 import openai
 from .utils import Spinner
 from .config import get_custom_model
@@ -210,26 +210,39 @@ def get_model_id(model: Union[Model, str]) -> str:
     
     return model  # 如果不是枚举也不是自定义模型，直接返回原值
 
-def generate_commit_message(diff: str, api_key: str, api_base: Optional[str] = None, model: Optional[Union[Model, str]] = None, prompt_template: Optional[str] = None) -> str:
-    """Generate commit message using OpenAI API."""
+def generate_commit_message(
+    diff: Optional[str],
+    api_key: str,
+    api_base: Optional[str] = None,
+    model: Optional[Union[Model, str]] = None,
+    prompt_template: Optional[str] = None,
+    dependency_files: Optional[List[str]] = None
+) -> str:
+    """Generate commit message using OpenAI API.
+    
+    Args:
+        diff: The diff content of non-dependency files
+        api_key: API key for the AI service
+        api_base: Optional API base URL
+        model: Optional model to use
+        prompt_template: Optional custom prompt template
+        dependency_files: Optional list of dependency files that were changed
+    
+    Returns:
+        Generated commit message
+    """
     model_name = model or DEFAULT_MODEL
     
     if not api_key:
         raise ValueError("API key is required")
     
-    if not diff:
+    if not diff and not dependency_files:
         raise ValueError("No changes to commit")
     
-    # 检查是否包含依赖更新标记
-    dependency_update = None
-    if diff.startswith("DEPENDENCY_UPDATE:"):
-        lines = diff.split('\n', 1)
-        dependency_update = lines[0].split(':')[1].strip()
-        diff = lines[1] if len(lines) > 1 else ""
-    
     # 如果只有依赖更新，没有其他变更
-    if dependency_update and not diff:
-        return f"chore: update dependencies ({dependency_update})"
+    if dependency_files and not diff:
+        files_str = ', '.join(dependency_files)
+        return f"chore: update dependencies in {files_str}"
     
     # 获取模型 ID 和 API base
     model_id = get_model_id(model_name)
@@ -256,8 +269,9 @@ def generate_commit_message(diff: str, api_key: str, api_base: Optional[str] = N
             commit_msg = response.choices[0].message.content.strip()
             
             # 如果有依赖更新，在生成的提交信息后面添加依赖信息
-            if dependency_update:
-                return f"{commit_msg} and update dependencies ({dependency_update})"
+            if dependency_files:
+                files_str = ', '.join(dependency_files)
+                return f"{commit_msg} and update dependencies in {files_str}"
             
             return commit_msg
             

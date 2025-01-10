@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 DEPENDENCY_FILES = [
     'pnpm-lock.yaml',      # pnpm
@@ -36,30 +36,32 @@ def run_git_command(command: list[str]) -> Tuple[int, str, str]:
     except Exception as e:
         return 1, "", str(e)
 
-def get_staged_diff() -> Optional[str]:
-    """获取已暂存的更改"""
-    # 检查是否有暂存的更改
-    returncode, staged_files, _ = run_git_command(['git', 'diff', '--cached', '--name-only'])
-    if returncode != 0 or not staged_files.strip():
-        return None
+def get_staged_diff() -> tuple[Optional[str], Optional[List[str]]]:
+    """Get the diff of staged changes and dependency files.
     
-    # 检查是否有依赖文件的更改
-    dependency_changes = [f for f in staged_files.splitlines() if os.path.basename(f) in DEPENDENCY_FILES]
-    
-    # 获取所有文件的完整 diff
-    returncode, full_diff, _ = run_git_command(['git', 'diff', '--cached'])
-    if returncode != 0:
-        return None
-    
-    if not full_diff:
-        return None
-    
-    # 如果有依赖文件变更，在 diff 前面添加特殊标记
-    if dependency_changes:
-        files_changed = ', '.join(os.path.basename(f) for f in dependency_changes)
-        return f"DEPENDENCY_UPDATE:{files_changed}\n{full_diff}"
-    
-    return full_diff
+    Returns:
+        A tuple of (diff_content, dependency_files), where:
+        - diff_content: The diff content of non-dependency files, or None if no changes
+        - dependency_files: List of dependency files changed, or None if no dependency updates
+    """
+    try:
+        # 获取所有暂存的文件列表
+        staged_files = subprocess.check_output(['git', 'diff', '--cached', '--name-only']).decode().strip().split('\n')
+        if not staged_files or staged_files == ['']:
+            return None, None
+
+        # 分离依赖文件和非依赖文件
+        dep_files = [f for f in staged_files if any(f.endswith(dep) for dep in DEPENDENCY_FILES)]
+        non_dep_files = [f for f in staged_files if not any(f.endswith(dep) for dep in DEPENDENCY_FILES)]
+
+        # 获取非依赖文件的 diff
+        diff = None
+        if non_dep_files:
+            diff = subprocess.check_output(['git', 'diff', '--cached'] + non_dep_files).decode()
+
+        return diff, dep_files if dep_files else None
+    except subprocess.CalledProcessError:
+        return None, None
 
 def commit_with_message(message: str) -> bool:
     """使用指定的消息提交更改"""
