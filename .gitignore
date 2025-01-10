@@ -33,3 +33,5 @@ env/
 
 # Project specific
 config.json
+
+DEVELOPMENT.md

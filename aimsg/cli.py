@@ -6,39 +6,38 @@ from pathlib import Path
 from .git_utils import get_staged_diff, commit_with_message
 from .openai_utils import generate_commit_message, Model
 from .config import CONFIG_FILE, load_config, save_config, get_config_value
+from . import __version__
 
 # 加载环境变量
 load_dotenv()
 
 @click.group()
+@click.version_option(__version__, prog_name='aimsg', message='%(prog)s version %(version)s')
 def cli():
     """AI-powered Git commit message generator"""
     pass
 
 @cli.command()
-@click.option('--model', default=None, help='Model to use for generating commit message')
-@click.option('--api-key', envvar='AIMSG_API_KEY', help='API key')
-@click.option('--api-base', envvar='AIMSG_API_BASE', help='API base URL')
-def commit(model, api_key, api_base):
+def commit():
     """Generate commit message for staged changes"""
     try:
         # 获取配置
         config = load_config()
         
         # 检查 API key
-        api_key = api_key or get_config_value("api_key")
+        api_key = get_config_value("api_key")
         if not api_key:
-            raise ValueError("API key is required. Please set AIMSG_API_KEY environment variable, use --api-key option, or run 'aimsg init'")
+            raise ValueError("API key is required. Please run 'aimsg init' to configure")
             
         # 获取 diff
         diff = get_staged_diff()
         if not diff:
-            click.echo("No staged changes found. Please stage your changes first using 'git add'", err=True)
+            click.echo("No staged changes found. Please stage your changes first using 'git add'.", err=True)
             return
         
         # 获取模型和 API base
-        model = model or config.get("model")
-        api_base = api_base or get_config_value("api_base") or config.get("api_base")
+        model = config.get("model")
+        api_base = get_config_value("api_base") or config.get("api_base")
         
         # 获取提示模板
         prompt = config.get("prompt")

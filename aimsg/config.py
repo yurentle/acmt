@@ -1,6 +1,7 @@
 import os
 import json
 from typing import Dict, Optional
+from dotenv import load_dotenv
 
 CONFIG_DIR = os.path.expanduser("~/.config/aimsg")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
@@ -32,12 +33,6 @@ def load_config() -> Dict:
     try:
         with open(CONFIG_FILE, 'r') as f:
             config = json.load(f)
-            # 处理旧版配置
-            if "openai_api_key" in config:
-                config["api_key"] = config.pop("openai_api_key")
-            if "openai_api_base" in config:
-                config["api_base"] = config.pop("openai_api_base")
-            # 确保所有必要的字段都存在
             return {**DEFAULT_CONFIG, **config}
     except Exception:
         return DEFAULT_CONFIG.copy()
@@ -49,13 +44,26 @@ def save_config(config: Dict):
         json.dump(config, f, indent=2)
 
 def get_config_value(key: str, default=None) -> Optional[str]:
-    """获取配置值，优先使用环境变量"""
-    # 首先尝试环境变量
-    env_value = os.getenv(f"AIMSG_{key.upper()}")
-    if env_value:
-        return env_value
+    """获取配置值，按优先级顺序：.env文件 > 环境变量 > 配置文件"""
+    env_key = f"AIMSG_{key.upper()}"
     
-    # 然后尝试配置文件
+    # 1. 首先尝试.env文件
+    load_dotenv()
+    env_value = os.getenv(env_key)
+    if env_value:
+        # 检查这个值是否来自.env文件
+        try:
+            with open(os.path.join(os.getcwd(), '.env'), 'r') as f:
+                if any(line.strip().startswith(env_key) for line in f):
+                    return env_value
+        except FileNotFoundError:
+            pass
+    
+    # 2. 然后尝试环境变量
+    if env_key in os.environ:
+        return os.environ[env_key]
+    
+    # 3. 最后尝试配置文件
     config = load_config()
     return config.get(key, default)
 
