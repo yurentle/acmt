@@ -36,6 +36,13 @@ def run_git_command(command: list[str]) -> Tuple[int, str, str]:
     except Exception as e:
         return 1, "", str(e)
 
+def get_git_root() -> Optional[str]:
+    """获取 git 仓库的根目录"""
+    returncode, stdout, _ = run_git_command(['git', 'rev-parse', '--show-toplevel'])
+    if returncode == 0:
+        return stdout.strip()
+    return None
+
 def get_staged_diff() -> tuple[Optional[str], Optional[List[str]]]:
     """Get the diff of staged changes and dependency files.
     
@@ -45,22 +52,42 @@ def get_staged_diff() -> tuple[Optional[str], Optional[List[str]]]:
         - dependency_files: List of dependency files changed, or None if no dependency updates
     """
     try:
-        # 获取所有暂存的文件列表
-        staged_files = subprocess.check_output(['git', 'diff', '--cached', '--name-only']).decode().strip().split('\n')
-        if not staged_files or staged_files == ['']:
+        # 获取 git 根目录
+        git_root = get_git_root()
+        if not git_root:
             return None, None
 
-        # 分离依赖文件和非依赖文件
-        dep_files = [f for f in staged_files if any(f.endswith(dep) for dep in DEPENDENCY_FILES)]
-        non_dep_files = [f for f in staged_files if not any(f.endswith(dep) for dep in DEPENDENCY_FILES)]
+        # 切换到 git 根目录
+        original_dir = os.getcwd()
+        os.chdir(git_root)
 
-        # 获取非依赖文件的 diff
-        diff = None
-        if non_dep_files:
-            diff = subprocess.check_output(['git', 'diff', '--cached'] + non_dep_files).decode()
+        try:
+            # 获取所有暂存的文件列表
+            returncode, stdout, _ = run_git_command(['git', 'diff', '--cached', '--name-only'])
+            if returncode != 0:
+                return None, None
 
-        return diff, dep_files if dep_files else None
-    except subprocess.CalledProcessError:
+            staged_files = stdout.strip().split('\n')
+            if not staged_files or staged_files == ['']:
+                return None, None
+
+            # 分离依赖文件和非依赖文件
+            dep_files = [f for f in staged_files if any(f.endswith(dep) for dep in DEPENDENCY_FILES)]
+            non_dep_files = [f for f in staged_files if not any(f.endswith(dep) for dep in DEPENDENCY_FILES)]
+
+            # 获取非依赖文件的 diff
+            diff = None
+            if non_dep_files:
+                returncode, stdout, _ = run_git_command(['git', 'diff', '--cached', '--'] + non_dep_files)
+                if returncode == 0:
+                    diff = stdout
+
+            return diff, dep_files if dep_files else None
+        finally:
+            # 恢复原始目录
+            os.chdir(original_dir)
+    except Exception as e:
+        print(f"Error getting staged diff: {str(e)}")
         return None, None
 
 def commit_with_message(message: str) -> bool:
