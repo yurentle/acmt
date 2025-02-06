@@ -63,12 +63,21 @@ def get_staged_diff() -> tuple[Optional[str], Optional[List[str]]]:
 
         try:
             # 获取所有暂存的文件列表
-            returncode, stdout, _ = run_git_command(['git', 'diff', '--cached', '--name-only'])
+            returncode, stdout, _ = run_git_command(['git', 'diff', '--cached', '--name-status'])
             if returncode != 0:
                 return None, None
 
-            staged_files = stdout.strip().split('\n')
-            if not staged_files or staged_files == ['']:
+            # 解析状态和文件名
+            staged_files = []
+            for line in stdout.strip().split('\n'):
+                if not line:
+                    continue
+                # 分割状态和文件名（例如：'M file.txt' 或 'D file.txt'）
+                parts = line.split(maxsplit=1)
+                if len(parts) == 2:
+                    staged_files.append(parts[1])
+
+            if not staged_files:
                 return None, None
 
             # 分离依赖文件和非依赖文件
