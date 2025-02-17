@@ -1,5 +1,7 @@
 # AI Message Generator for Git
 
+[中文文档](./README_CN.md)
+
 [![PyPI version](https://badge.fury.io/py/aimsg.svg)](https://badge.fury.io/py/aimsg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
@@ -17,6 +19,7 @@ A CLI tool that generates commit messages using AI models based on your git repo
 ## Installation
 
 ### Using pipx (Recommended)
+
 ```bash
 # Install pipx if you haven't
 brew install pipx
@@ -27,6 +30,7 @@ pipx install aimsg
 ```
 
 ### Using pip
+
 ```bash
 pip install aimsg
 ```
@@ -34,17 +38,20 @@ pip install aimsg
 ## Quick Start
 
 1. Initialize with your preferred model and API key:
+
 ```bash
 aimsg init
 ```
 
 2. Stage your changes and generate commit message:
+
 ```bash
 git add .
 aimsg commit
 ```
 
 3. Get help or version information:
+
 ```bash
 # Show version
 aimsg --version
@@ -62,6 +69,7 @@ aimsg commit --help
 Configure `aimsg` in order of priority:
 
 1. Project-level `.env` file (highest priority)
+
 ```bash
 AIMSG_API_KEY=your_api_key
 AIMSG_API_BASE=your_api_base
@@ -69,6 +77,7 @@ AIMSG_MODEL=your_model
 ```
 
 2. Environment variables
+
 ```bash
 export AIMSG_API_KEY=your_api_key
 export AIMSG_API_BASE=your_api_base
@@ -76,6 +85,7 @@ export AIMSG_MODEL=your_model
 ```
 
 3. Global configuration via `aimsg init` (lowest priority, default)
+
 ```bash
 # Creates ~/.config/aimsg/config.json with default settings:
 # - model: gpt-3.5-turbo
@@ -107,6 +117,7 @@ aimsg reset-prompt
 ```
 
 The default prompt template guides the AI to:
+
 - Follow conventional commits format
 - Focus on the "what" and "why" of changes
 - Keep the first line under 72 characters
@@ -115,11 +126,13 @@ The default prompt template guides the AI to:
 ## Default API Endpoints
 
 ### Major Providers
+
 - OpenAI: `https://api.openai.com/v1`
 - Anthropic: `https://api.anthropic.com/v1`
 - Google: `https://generativelanguage.googleapis.com/v1`
 
 ### Chinese Providers
+
 - DeepSeek: `https://api.deepseek.com/v1`
 - Aliyun: `https://dashscope.aliyuncs.com/api/v1`
 - iFlytek: `https://spark-api.xf-yun.com/v3.1`
@@ -130,6 +143,7 @@ The default prompt template guides the AI to:
 - ByteDance: `https://api.doubao.com/v1`
 
 ### Hosted Services
+
 - Replicate: `https://api.replicate.com/v1`
 - Together AI: `https://api.together.xyz/v1`
 
