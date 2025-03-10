@@ -5,13 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2025-03-10
+
+### Changed
+- Added display of current configuration
+- Optimized the logic for extracting configurations
+- Removed the requirement for the API key attribute
+
 ## [0.2.1] - 2025-02-06
 
 ### Changed
-- 增强了 Git 暂存文件的处理
-  - 改进了对删除文件的支持
-  - 添加了文件状态信息的获取
-  - 优化了 Git 仓库根目录的获取方式
+- Enhanced handling of Git staged files
+  - Improved support for deleted files
+  - Added retrieval of file status information
+  - Optimized the method for obtaining the root directory of the Git repository
 
 ## [0.2.0] - 2025-01-10
 
@@ -54,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `aimsg commit`: Generate commit message
   - `aimsg model`: Manage AI models
 
+[0.2.2]: https://github.com/yurentle/aimsg/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/yurentle/aimsg/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/yurentle/aimsg/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/yurentle/aimsg/compare/v0.1.1...v0.1.2
