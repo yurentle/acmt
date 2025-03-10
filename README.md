@@ -62,6 +62,9 @@ aimsg --help
 # Show help for a specific command
 aimsg model --help
 aimsg commit --help
+
+# Show current configuration
+aimsg current
 ```
 
 ## Configuration
@@ -74,6 +77,7 @@ Configure `aimsg` in order of priority:
 AIMSG_API_KEY=your_api_key
 AIMSG_API_BASE=your_api_base
 AIMSG_MODEL=your_model
+AIMSG_PROMPT=your_prompt
 ```
 
 2. Environment variables
@@ -82,6 +86,7 @@ AIMSG_MODEL=your_model
 export AIMSG_API_KEY=your_api_key
 export AIMSG_API_BASE=your_api_base
 export AIMSG_MODEL=your_model
+export AIMSG_PROMPT=your_prompt
 ```
 
 3. Global configuration via `aimsg init` (lowest priority, default)
@@ -90,6 +95,9 @@ export AIMSG_MODEL=your_model
 # Creates ~/.config/aimsg/config.json with default settings:
 # - model: gpt-3.5-turbo
 # - api_base: https://api.openai.com/v1
+# - api_key: your_api_key
+# - prompt: default prompt template
+# - custom_models: custom model list
 aimsg init
 ```
 

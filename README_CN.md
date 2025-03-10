@@ -62,6 +62,9 @@ aimsg --help
 # 显示特定命令的帮助信息
 aimsg model --help
 aimsg commit --help
+
+# 显示当前配置
+aimsg current
 ```
 
 ## 配置
@@ -74,6 +77,7 @@ aimsg commit --help
 AIMSG_API_KEY=your_api_key
 AIMSG_API_BASE=your_api_base
 AIMSG_MODEL=your_model
+AIMSG_PROMPT=your_prompt
 ```
 
 2. 环境变量
@@ -82,6 +86,7 @@ AIMSG_MODEL=your_model
 export AIMSG_API_KEY=your_api_key
 export AIMSG_API_BASE=your_api_base
 export AIMSG_MODEL=your_model
+export AIMSG_PROMPT=your_prompt
 ```
 
 3. 通过 `aimsg init` 的全局配置（最低优先级，默认）
@@ -90,6 +95,9 @@ export AIMSG_MODEL=your_model
 # 在 ~/.config/aimsg/config.json 创建默认设置：
 # - model: gpt-3.5-turbo
 # - api_base: https://api.openai.com/v1
+# - api_key: 你的 API 密钥
+# - prompt: 默认提示词模板
+# - custom_models: 自定义模型列表
 aimsg init
 ```
 
