@@ -27,6 +27,9 @@ pipx ensurepath
 
 # 安装 aimsg
 pipx install aimsg
+
+# 升级 aimsg 到最新版
+pipx upgrade aimsg
 ```
 
 ### 使用 pip

@@ -27,6 +27,9 @@ pipx ensurepath
 
 # Install aimsg
 pipx install aimsg
+
+# Upgrade aimsg
+pipx upgrade aimsg
 ```
 
 ### Using pip
