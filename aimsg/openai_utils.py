@@ -231,11 +231,7 @@ def generate_commit_message(
     Returns:
         Generated commit message
     """
-    model_name = model or DEFAULT_MODEL
-    
-    if not api_key:
-        raise ValueError("API key is required")
-    
+
     if not diff and not dependency_files:
         raise ValueError("No changes to commit")
     
@@ -245,6 +241,7 @@ def generate_commit_message(
         return f"chore: update dependencies in {files_str}"
     
     # 获取模型 ID 和 API base
+    model_name = model or DEFAULT_MODEL
     model_id = get_model_id(model_name)
     effective_api_base = api_base or get_model_api_base(model_name)
     

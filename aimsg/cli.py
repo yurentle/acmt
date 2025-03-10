@@ -14,33 +14,24 @@ load_dotenv()
 @click.group()
 @click.version_option(__version__, prog_name='aimsg', message='%(prog)s version %(version)s')
 def cli():
-    """AI-powered Git commit message generator"""
+    """AI-powered Git commit message generator."""
     pass
 
 @cli.command()
 def commit():
-    """Generate commit message for staged changes"""
+    """Generate commit message for staged changes."""
     try:
-        # 获取配置
-        config = load_config()
-        
-        # 检查 API key
-        api_key = get_config_value("api_key")
-        if not api_key:
-            raise ValueError("API key is required. Please run 'aimsg init' to configure")
-            
         # 获取 diff 和依赖文件列表
         diff, dependency_files = get_staged_diff()
         if not diff and not dependency_files:
             click.echo("No staged changes found. Please stage your changes first using 'git add'.", err=True)
             return
-        
-        # 获取模型和 API base
-        model = config.get("model")
-        api_base = get_config_value("api_base") or config.get("api_base")
-        
-        # 获取提示模板
-        prompt = config.get("prompt")
+             
+        # 获取配置
+        api_key = get_config_value("api_key")
+        api_base = get_config_value("api_base")
+        model = get_config_value("model")
+        prompt = get_config_value("prompt")
 
         # 生成提交消息
         commit_message = generate_commit_message(
@@ -51,7 +42,7 @@ def commit():
             prompt_template=prompt,
             dependency_files=dependency_files
         )
-              
+        
         # 显示生成的消息
         click.echo("Generated commit message:")
         click.echo("-" * 40)
@@ -72,7 +63,7 @@ def commit():
 
 @cli.command()
 def init():
-    """Initialize or update configuration"""
+    """Initialize or update configuration."""
     try:
         # 获取现有配置
         config = load_config()
@@ -148,6 +139,14 @@ def init():
         click.echo(f"Error: {str(e)}", err=True)
 
 @cli.command()
+def current():
+    """Show current configuration."""
+    click.echo(f"Model: {get_config_value('model')}")
+    click.echo(f"API Base: {get_config_value('api_base')}")
+    click.echo(f"API Key: {get_config_value('api_key')}")
+    click.echo(f"Prompt: {get_config_value('prompt')}")
+
+@cli.command()
 def prompt():
     """Configure custom prompt template."""
     config = load_config()
@@ -188,12 +187,12 @@ def reset_prompt():
 
 @cli.group()
 def model():
-    """Manage AI models"""
+    """Manage AI models."""
     pass
 
 @model.command(name="list")
 def list_models():
-    """List all available models"""
+    """List all available models."""
     try:
         # 获取当前配置的模型
         config = load_config()
