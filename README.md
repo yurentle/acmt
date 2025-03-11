@@ -10,7 +10,21 @@ A CLI tool that generates commit messages using AI models based on your git repo
 
 ## Features
 
-- 🤖 Wide Model Support: OpenAI, Anthropic, Google, DeepSeek, Aliyun, iFlytek, Zhipu, Baidu, Moonshot, Tencent, ByteDance, and more
+- 🤖 Wide Model Support: 
+  - OpenAI
+  - Anthropic
+  - Google
+  - DeepSeek
+  - Aliyun
+  - iFlytek
+  - Zhipu
+  - Baidu
+  - Moonshot
+  - Tencent
+  - ByteDance
+  - Replicate
+  - Together AI
+- 🔧 Custom API base
 - 🔧 Custom Model Integration
 - 📝 Conventional Commits Format
 - 🎯 Customizable Prompt Templates
@@ -98,8 +112,8 @@ export AIMSG_PROMPT=your_prompt
 aimsg init
 
 # Creates ~/.config/aimsg/config.json with default settings:
-# - model: gpt-3.5-turbo
-# - api_base: https://api.openai.com/v1
+# - model: your_model
+# - api_base: your_api_base
 # - api_key: your_api_key
 # - prompt: default prompt template
 # - custom_models: custom model list
@@ -112,7 +126,7 @@ aimsg init
 aimsg model list
 
 # Add custom model
-aimsg model add my-model model-id https://api.example.com/v1
+aimsg model add my-model https://api.example.com/v1
 
 # Remove custom model
 aimsg model remove my-model
@@ -128,6 +142,17 @@ aimsg prompt
 aimsg reset-prompt
 ```
 
+Default prompt template:
+
+```
+Based on the following git diff, generate a concise and descriptive commit message that follows conventional commits format.
+Focus on the "what" and "why" of the changes.
+Start with a type (feat, fix, docs, style, refactor, perf, test, build, ci, chore).
+Do not include scope.
+Limit the first line to 72 characters.
+Add a blank line followed by a more detailed description if necessary.
+```
+
 The default prompt template guides the AI to:
 
 - Follow conventional commits format
@@ -135,9 +160,7 @@ The default prompt template guides the AI to:
 - Keep the first line under 72 characters
 - Add detailed description when necessary
 
-## Default API Endpoints
-
-### Providers
+## Default API Providers
 
 - OpenAI: `https://api.openai.com/v1`
 - Anthropic: `https://api.anthropic.com/v1`

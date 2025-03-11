@@ -10,7 +10,21 @@
 
 ## 特性
 
-- 🤖 广泛的模型支持：OpenAI、Anthropic、Google、DeepSeek、Aliyun、iFlytek、Zhipu、Baidu、Moonshot、Tencent、ByteDance、Replicate、Together AI 等
+- 🤖 广泛的模型支持：
+  - OpenAI
+  - Anthropic
+  - Google
+  - DeepSeek
+  - Aliyun
+  - iFlytek
+  - Zhipu
+  - Baidu
+  - Moonshot
+  - Tencent
+  - ByteDance
+  - Replicate
+  - Together AI
+- 🔧 支持自定义 API base
 - 🔧 支持自定义模型集成
 - 📝 符合 Conventional Commits 规范
 - 🎯 可自定义提示词模板
@@ -83,7 +97,7 @@ AIMSG_MODEL=your_model
 AIMSG_PROMPT=your_prompt
 ```
 
-2. 环境变量
+2. 环境变量（次优先级）
 
 ```bash
 export AIMSG_API_KEY=your_api_key
@@ -98,8 +112,8 @@ export AIMSG_PROMPT=your_prompt
 aimsg init
 
 # 在 ~/.config/aimsg/config.json 创建默认设置：
-# - model: gpt-3.5-turbo
-# - api_base: https://api.openai.com/v1
+# - model: 你的模型
+# - api_base: 你的 API base
 # - api_key: 你的 API 密钥
 # - prompt: 默认提示词模板
 # - custom_models: 自定义模型列表
@@ -112,7 +126,7 @@ aimsg init
 aimsg model list
 
 # 添加自定义模型
-aimsg model add my-model model-id https://api.example.com/v1
+aimsg model add my-model https://api.example.com/v1
 
 # 移除自定义模型
 aimsg model remove my-model
@@ -126,6 +140,16 @@ aimsg prompt
 
 # 重置为默认提示词模板
 aimsg reset-prompt
+
+```
+默认提示词模版：
+```
+Based on the following git diff, generate a concise and descriptive commit message that follows conventional commits format.
+Focus on the "what" and "why" of the changes.
+Start with a type (feat, fix, docs, style, refactor, perf, test, build, ci, chore).
+Do not include scope.
+Limit the first line to 72 characters.
+Add a blank line followed by a more detailed description if necessary.
 ```
 
 默认提示词模板指导 AI：
@@ -135,9 +159,7 @@ aimsg reset-prompt
 - 保持首行在 72 个字符以内
 - 必要时添加详细描述
 
-## 默认 API 端点
-
-### 提供商
+## 默认 API 提供商
 
 - OpenAI: `https://api.openai.com/v1`
 - Anthropic: `https://api.anthropic.com/v1`
