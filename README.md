@@ -10,7 +10,7 @@ A CLI tool that generates commit messages using AI models based on your git repo
 
 ## Features
 
-- 🤖 Wide Model Support: OpenAI, Anthropic, Google, Chinese models, and more
+- 🤖 Wide Model Support: OpenAI, Anthropic, Google, DeepSeek, Aliyun, iFlytek, Zhipu, Baidu, Moonshot, Tencent, ByteDance, and more
 - 🔧 Custom Model Integration
 - 📝 Conventional Commits Format
 - 🎯 Customizable Prompt Templates
@@ -95,13 +95,14 @@ export AIMSG_PROMPT=your_prompt
 3. Global configuration via `aimsg init` (lowest priority, default)
 
 ```bash
+aimsg init
+
 # Creates ~/.config/aimsg/config.json with default settings:
 # - model: gpt-3.5-turbo
 # - api_base: https://api.openai.com/v1
 # - api_key: your_api_key
 # - prompt: default prompt template
 # - custom_models: custom model list
-aimsg init
 ```
 
 ## Model Management
@@ -136,14 +137,11 @@ The default prompt template guides the AI to:
 
 ## Default API Endpoints
 
-### Major Providers
+### Providers
 
 - OpenAI: `https://api.openai.com/v1`
 - Anthropic: `https://api.anthropic.com/v1`
 - Google: `https://generativelanguage.googleapis.com/v1`
-
-### Chinese Providers
-
 - DeepSeek: `https://api.deepseek.com/v1`
 - Aliyun: `https://dashscope.aliyuncs.com/api/v1`
 - iFlytek: `https://spark-api.xf-yun.com/v3.1`
@@ -152,9 +150,6 @@ The default prompt template guides the AI to:
 - Moonshot: `https://api.moonshot.cn/v1`
 - Tencent: `https://hunyuan.cloud.tencent.com/hyllm/v1`
 - ByteDance: `https://api.doubao.com/v1`
-
-### Hosted Services
-
 - Replicate: `https://api.replicate.com/v1`
 - Together AI: `https://api.together.xyz/v1`
 

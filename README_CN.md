@@ -10,7 +10,7 @@
 
 ## 特性
 
-- 🤖 广泛的模型支持：OpenAI、Anthropic、Google 以及众多中文模型
+- 🤖 广泛的模型支持：OpenAI、Anthropic、Google、DeepSeek、Aliyun、iFlytek、Zhipu、Baidu、Moonshot、Tencent、ByteDance、Replicate、Together AI 等
 - 🔧 支持自定义模型集成
 - 📝 符合 Conventional Commits 规范
 - 🎯 可自定义提示词模板
@@ -95,13 +95,14 @@ export AIMSG_PROMPT=your_prompt
 3. 通过 `aimsg init` 的全局配置（最低优先级，默认）
 
 ```bash
+aimsg init
+
 # 在 ~/.config/aimsg/config.json 创建默认设置：
 # - model: gpt-3.5-turbo
 # - api_base: https://api.openai.com/v1
 # - api_key: 你的 API 密钥
 # - prompt: 默认提示词模板
 # - custom_models: 自定义模型列表
-aimsg init
 ```
 
 ## 模型管理
@@ -136,14 +137,11 @@ aimsg reset-prompt
 
 ## 默认 API 端点
 
-### 主要提供商
+### 提供商
 
 - OpenAI: `https://api.openai.com/v1`
 - Anthropic: `https://api.anthropic.com/v1`
 - Google: `https://generativelanguage.googleapis.com/v1`
-
-### 中文模型提供商
-
 - DeepSeek: `https://api.deepseek.com/v1`
 - 阿里云: `https://dashscope.aliyuncs.com/api/v1`
 - 讯飞: `https://spark-api.xf-yun.com/v3.1`
@@ -152,9 +150,6 @@ aimsg reset-prompt
 - Moonshot: `https://api.moonshot.cn/v1`
 - 腾讯: `https://hunyuan.cloud.tencent.com/hyllm/v1`
 - 字节跳动: `https://api.doubao.com/v1`
-
-### 托管服务
-
 - Replicate: `https://api.replicate.com/v1`
 - Together AI: `https://api.together.xyz/v1`
 
