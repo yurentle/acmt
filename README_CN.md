@@ -1,4 +1,4 @@
-# AI 提交消息生成器
+# 基于 AI 的 Git 提交消息生成器
 
 [English](./README.md)
 

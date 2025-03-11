@@ -1,4 +1,4 @@
-# AI Message Generator for Git
+# Git Commit Message Generator with AI
 
 [中文文档](./README_CN.md)
 
@@ -97,7 +97,7 @@ AIMSG_MODEL=your_model
 AIMSG_PROMPT=your_prompt
 ```
 
-2. Environment variables
+2. Environment variables（Secondary priority）
 
 ```bash
 export AIMSG_API_KEY=your_api_key
