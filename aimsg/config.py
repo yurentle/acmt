@@ -8,8 +8,8 @@ CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 DEFAULT_CONFIG = {
     "api_key": "",
-    "api_base": "https://api.openai.com/v1",
-    "model": "gpt-3.5-turbo",
+    "api_base": "",
+    "model": "",
     "prompt": """Based on the following git diff, generate a concise and descriptive commit message that follows conventional commits format.
 Focus on the "what" and "why" of the changes.
 Start with a type (feat, fix, docs, style, refactor, perf, test, build, ci, chore).
@@ -66,38 +66,69 @@ def get_config_value(key: str, default=None) -> Optional[str]:
     config = load_config()
     return config.get(key, default)
 
-def add_custom_model(name: str, model_id: str, api_base: str):
-    """添加自定义模型"""
-    config = load_config()
-    if "custom_models" not in config:
-        config["custom_models"] = {}
-    
-    config["custom_models"][name] = {
-        "model_id": model_id,
-        "api_base": api_base
-    }
-    save_config(config)
+def get_custom_model(name: str) -> Optional[dict]:
+    """获取指定名称的自定义模型配置"""
+    config = Config()
+    return config.get_model_config(name)
 
-def remove_custom_model(name: str):
-    """删除自定义模型"""
-    config = load_config()
-    if "custom_models" not in config or name not in config["custom_models"]:
-        raise ValueError(f"Custom model '{name}' not found")
+class Config:
+    def __init__(self):
+        self.config_file = CONFIG_FILE
     
-    del config["custom_models"][name]
+    def load_config(self) -> Dict:
+        """加载配置文件"""
+        ensure_config_dir()
+        if not os.path.exists(self.config_file):
+            return DEFAULT_CONFIG.copy()
+        
+        try:
+            with open(self.config_file, 'r') as f:
+                config = json.load(f)
+                return {**DEFAULT_CONFIG, **config}
+        except Exception:
+            return DEFAULT_CONFIG.copy()
     
-    # 如果删除的是当前默认模型，重置为默认的 GPT-3.5
-    if config.get("model") == name:
-        config["model"] = DEFAULT_CONFIG["model"]
+    def save_config(self, config: Dict):
+        """保存配置文件"""
+        ensure_config_dir()
+        with open(self.config_file, 'w') as f:
+            json.dump(config, f, indent=2)
     
-    save_config(config)
-
-def get_custom_model(name: str) -> Optional[Dict]:
-    """获取自定义模型配置"""
-    config = load_config()
-    return config.get("custom_models", {}).get(name)
-
-def list_custom_models() -> Dict:
-    """列出所有自定义模型"""
-    config = load_config()
-    return config.get("custom_models", {})
+    def add_custom_model(self, name: str, api_base: str):
+        """Add a custom model configuration"""
+        if not name or not api_base:
+            raise ValueError("Model name and API base URL are required")
+            
+        config = self.load_config()
+        if 'custom_models' not in config:
+            config['custom_models'] = {}
+            
+        config['custom_models'][name] = api_base
+        self.save_config(config)
+    
+    def remove_custom_model(self, name: str):
+        """删除自定义模型"""
+        config = self.load_config()
+        custom_models = config.get('custom_models', {})
+        
+        if name not in custom_models:
+            raise ValueError(f"Custom model '{name}' not found")
+        
+        del custom_models[name]
+        self.save_config(config)
+    
+    def get_custom_models(self) -> dict:
+        """Get all custom model configurations"""
+        config = self.load_config()
+        return config.get('custom_models', {})
+    
+    def get_model_config(self, model_name: str) -> Optional[dict]:
+        """Get configuration for a specific model"""
+        config = self.load_config()
+        custom_models = config.get('custom_models', {})
+        
+        if model_name in custom_models:
+            return {
+                'api_base': custom_models[model_name]
+            }
+        return None

@@ -1,12 +1,11 @@
 import click
-import os
-import json
 from dotenv import load_dotenv
 from pathlib import Path
 from .git_utils import get_staged_diff, commit_with_message
 from .openai_utils import generate_commit_message, Model
-from .config import CONFIG_FILE, load_config, save_config, get_config_value
+from .config import load_config, save_config, get_config_value, Config
 from . import __version__
+import sys
 
 # 加载环境变量
 load_dotenv()
@@ -81,29 +80,29 @@ def init():
         custom_start = len(models) + 1
         if custom_models:
             click.echo("\nCustom models:")
-            for i, (name, details) in enumerate(custom_models.items(), custom_start):
+            for i, (name, api_base) in enumerate(custom_models.items(), custom_start):
                 prefix = "* " if name == current_model else "  "
-                click.echo(f"{i}. {prefix}{name} ({details['model_id']} @ {details['api_base']})")
+                click.echo(f"{i}. {prefix}{name} ({api_base})")
         
         while True:
             choice = click.prompt('\nSelect a model (enter number)', type=int)
             if 1 <= choice <= len(models):
                 # 选择内置模型
                 selected_model = models[choice-1]
-                model_id = selected_model.value
+                model_name = selected_model.value
                 api_base = selected_model.api_base
                 break
             elif custom_start <= choice < custom_start + len(custom_models):
                 # 选择自定义模型
                 name = list(custom_models.keys())[choice-custom_start]
-                model_id = name
-                api_base = custom_models[name]["api_base"]
+                model_name = name
+                api_base = custom_models[name]
                 break
             click.echo("Invalid choice. Please try again.")
         
         # 如果选择了内置模型，询问是否要自定义 API base
         if 1 <= choice <= len(models):
-            click.echo(f"\nDefault API base for {model_id}: {api_base}")
+            click.echo(f"\nDefault API base for {model_name}: {api_base}")
             customize = click.confirm("Do you want to use a custom API base?", default=False)
             if customize:
                 api_base = click.prompt(
@@ -112,18 +111,16 @@ def init():
                     default=api_base
                 )
         
-        # 获取 API key
-        api_key = os.getenv('AIMSG_API_KEY')
+        # 设置 API key
+        api_key = click.prompt('\nEnter your API key', type=str)
         if not api_key:
-            api_key = click.prompt('\nEnter your API key', type=str)
-            if not api_key:
-                raise ValueError("API key is required")
+            raise ValueError("API key is required")
         
         # 更新配置
         config.update({
             "api_key": api_key,
             "api_base": api_base,
-            "model": model_id
+            "model": model_name
         })
         
         # 保存配置
@@ -131,7 +128,7 @@ def init():
         
         # 显示配置信息
         click.echo("\nConfiguration saved:")
-        click.echo(f"Model: {model_id}")
+        click.echo(f"Model: {model_name}")
         click.echo(f"API Base: {api_base}")
         click.echo("API Key: ********" + api_key[-4:])
         
@@ -271,11 +268,9 @@ def list_models():
         custom_models = config.get("custom_models", {})
         if custom_models:
             click.echo("Custom Models:")
-            for name, details in custom_models.items():
+            for name, api_base in custom_models.items():
                 prefix = "* " if name == current_model else "  "
-                click.echo(f"{prefix}{name}")
-                click.echo(f"  Model ID: {details['model_id']}")
-                click.echo(f"  API Base: {details['api_base']}")
+                click.echo(f"{prefix}{name}: {api_base}")
             click.echo()
         
         # 显示说明
@@ -287,37 +282,29 @@ def list_models():
     except Exception as e:
         click.echo(f"Error: {str(e)}", err=True)
 
-@model.command(name='add')
+@model.command()
 @click.argument('name')
-@click.argument('model_id')
 @click.argument('api_base')
-def add_model(name, model_id, api_base):
-    """Add a custom model"""
+def add(name: str, api_base: str):
+    """Add a custom model configuration"""
     try:
-        # 保存自定义模型
-        config = load_config()
-        config.setdefault("custom_models", {})[name] = {
-            "model_id": model_id,
-            "api_base": api_base
-        }
-        save_config(config)
-        click.echo(f"Successfully added custom model: {name}")
+        config = Config()
+        config.add_custom_model(name, api_base)
+        click.echo(f"Successfully added custom model '{name}'")
     except Exception as e:
-        click.echo(f"Error: {str(e)}", err=True)
+        click.echo(f"Failed to add custom model: {str(e)}", err=True)
+        sys.exit(1)
 
 @model.command(name='remove')
 @click.argument('name')
 def remove_model(name):
     """Remove a custom model"""
     try:
-        # 删除自定义模型
-        config = load_config()
-        if "custom_models" in config and name in config["custom_models"]:
-            del config["custom_models"][name]
-            save_config(config)
-            click.echo(f"Successfully removed custom model: {name}")
-        else:
-            click.echo(f"Error: Model '{name}' not found.")
+        config = Config()
+        config.remove_custom_model(name)
+        click.echo(f"Successfully removed custom model: {name}")
+    except ValueError as e:
+        click.echo(f"Error: {str(e)}", err=True)
     except Exception as e:
         click.echo(f"Error: {str(e)}", err=True)
 

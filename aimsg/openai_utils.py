@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Optional, Union, Dict, List
 import openai
 from .utils import Spinner
-from .config import get_custom_model
 
 class Model(str, Enum):
     # OpenAI Models
@@ -47,6 +46,14 @@ class Model(str, Enum):
     def api_base(self) -> str:
         """获取模型的默认 API base"""
         api_bases = {
+            # OpenAI Models - 使用默认 API base
+            "gpt-3.5-turbo": "https://api.openai.com/v1",
+            "gpt-3.5-turbo-16k": "https://api.openai.com/v1",
+            "gpt-4": "https://api.openai.com/v1",
+            "gpt-4-32k": "https://api.openai.com/v1",
+            "gpt-4-1106-preview": "https://api.openai.com/v1",
+            
+            # Other models...
             "claude-2": "https://api.anthropic.com/v1",
             "claude-instant-1": "https://api.anthropic.com/v1",
             "palm-2": "https://generativelanguage.googleapis.com/v1beta",
@@ -71,9 +78,7 @@ class Model(str, Enum):
             "mistralai/mixtral-8x7b-instruct": "https://api.together.xyz/v1",
             "meta-llama/codellama-34b-instruct": "https://api.replicate.com/v1",
         }
-        return api_bases.get(self.value, "https://api.openai.com/v1")
-
-DEFAULT_MODEL = Model.GPT35
+        return api_bases.get(self.value)
 
 DEFAULT_PROMPT = """Based on the following git diff, generate a concise and descriptive commit message that follows conventional commits format.
 Focus on the "what" and "why" of the changes.
@@ -186,30 +191,6 @@ def get_model_settings(model: Model):
         "system_message": "You are a helpful assistant that generates clear and concise git commit messages."
     }
 
-def get_model_api_base(model: Union[Model, str]) -> Optional[str]:
-    """获取模型的 API 基础 URL"""
-    if isinstance(model, Model):
-        return model.api_base
-    
-    # 检查是否是自定义模型
-    custom_model = get_custom_model(model)
-    if custom_model:
-        return custom_model['api_base']
-    
-    return None
-
-def get_model_id(model: Union[Model, str]) -> str:
-    """获取模型 ID"""
-    if isinstance(model, Model):
-        return model.value
-    
-    # 检查是否是自定义模型
-    custom_model = get_custom_model(model)
-    if custom_model:
-        return custom_model['model_id']
-    
-    return model  # 如果不是枚举也不是自定义模型，直接返回原值
-
 def generate_commit_message(
     diff: Optional[str],
     api_key: str,
@@ -232,35 +213,27 @@ def generate_commit_message(
         Generated commit message
     """
 
-    if not diff and not dependency_files:
-        raise ValueError("No changes to commit")
-    
     # 如果只有依赖更新，没有其他变更
     if dependency_files and not diff:
         files_str = ', '.join(dependency_files)
         return f"chore: update dependencies in {files_str}"
-    
-    # 获取模型 ID 和 API base
-    model_name = model or DEFAULT_MODEL
-    model_id = get_model_id(model_name)
-    effective_api_base = api_base or get_model_api_base(model_name)
-    
+
     # 使用 AI 生成提交信息
     client = openai.OpenAI(
         api_key=api_key,
-        base_url=effective_api_base,
+        base_url=api_base,
     )
 
     with Spinner("Generating commit message..."):
         try:
             response = client.chat.completions.create(
-                model=model_id,
+                model=model,
                 messages=[
                     {"role": "system", "content": prompt_template or DEFAULT_PROMPT},
                     {"role": "user", "content": diff},
                 ],
-                temperature=get_model_settings(model_name)["temperature"] if isinstance(model_name, Model) else 0.7,
-                max_tokens=get_model_settings(model_name)["max_tokens"] if isinstance(model_name, Model) else 100,
+                temperature=get_model_settings(model)["temperature"] if isinstance(model, Model) else 0.7,
+                max_tokens=get_model_settings(model)["max_tokens"] if isinstance(model, Model) else 100,
                 n=1,
             )
             commit_msg = response.choices[0].message.content.strip()
