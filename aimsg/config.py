@@ -3,7 +3,7 @@ import json
 from typing import Dict, Optional
 from dotenv import load_dotenv
 
-CONFIG_DIR = os.path.expanduser("~/.config/aimsg")
+CONFIG_DIR = os.path.expanduser("~/.config/acmt")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 DEFAULT_CONFIG = {
@@ -45,7 +45,7 @@ def save_config(config: Dict):
 
 def get_config_value(key: str, default=None) -> Optional[str]:
     """获取配置值，按优先级顺序：.env文件 > 环境变量 > 配置文件"""
-    env_key = f"AIMSG_{key.upper()}"
+    env_key = f"ACMT_{key.upper()}"
     # 1. 首先尝试.env文件
     load_dotenv()
     env_value = os.getenv(env_key)

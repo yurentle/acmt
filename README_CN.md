@@ -2,7 +2,7 @@
 
 [English](./README.md)
 
-[![PyPI version](https://badge.fury.io/py/aimsg.svg)](https://badge.fury.io/py/aimsg)
+[![PyPI version](https://badge.fury.io/py/acmt.svg)](https://badge.fury.io/py/acmt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 
@@ -39,17 +39,17 @@
 brew install pipx
 pipx ensurepath
 
-# 安装 aimsg
-pipx install aimsg
+# 安装 acmt
+pipx install acmt
 
-# 升级 aimsg 到最新版
-pipx upgrade aimsg
+# 升级 acmt 到最新版
+pipx upgrade acmt
 ```
 
 ### 使用 pip
 
 ```bash
-pip install aimsg
+pip install acmt
 ```
 
 ## 快速开始
@@ -57,61 +57,61 @@ pip install aimsg
 1. 使用您偏好的模型和 API 密钥初始化：
 
 ```bash
-aimsg init
+acmt init
 ```
 
 2. 暂存更改并生成提交信息：
 
 ```bash
 git add .
-aimsg commit
+acmt commit
 ```
 
 3. 获取帮助或版本信息：
 
 ```bash
 # 显示版本
-aimsg --version
+acmt --version
 
 # 显示所有可用命令
-aimsg --help
+acmt --help
 
 # 显示特定命令的帮助信息
-aimsg model --help
-aimsg commit --help
+acmt model --help
+acmt commit --help
 
 # 显示当前配置
-aimsg current
+acmt current
 ```
 
 ## 配置
 
-`aimsg` 的配置按以下优先级顺序生效：
+`acmt` 的配置按以下优先级顺序生效：
 
 1. 项目级 `.env` 文件（最高优先级）
 
 ```bash
-AIMSG_API_KEY=your_api_key
-AIMSG_API_BASE=your_api_base
-AIMSG_MODEL=your_model
-AIMSG_PROMPT=your_prompt
+ACMT_API_KEY=your_api_key
+ACMT_API_BASE=your_api_base
+ACMT_MODEL=your_model
+ACMT_PROMPT=your_prompt
 ```
 
 2. 环境变量（次优先级）
 
 ```bash
-export AIMSG_API_KEY=your_api_key
-export AIMSG_API_BASE=your_api_base
-export AIMSG_MODEL=your_model
-export AIMSG_PROMPT=your_prompt
+export ACMT_API_KEY=your_api_key
+export ACMT_API_BASE=your_api_base
+export ACMT_MODEL=your_model
+export ACMT_PROMPT=your_prompt
 ```
 
-3. 通过 `aimsg init` 的全局配置（最低优先级，默认）
+3. 通过 `acmt init` 的全局配置（最低优先级，默认）
 
 ```bash
-aimsg init
+acmt init
 
-# 在 ~/.config/aimsg/config.json 创建默认设置：
+# 在 ~/.config/acmt/config.json 创建默认设置：
 # - model: 你的模型
 # - api_base: 你的 API base
 # - api_key: 你的 API 密钥
@@ -123,23 +123,23 @@ aimsg init
 
 ```bash
 # 列出可用模型
-aimsg model list
+acmt model list
 
 # 添加自定义模型
-aimsg model add my-model https://api.example.com/v1
+acmt model add my-model https://api.example.com/v1
 
 # 移除自定义模型
-aimsg model remove my-model
+acmt model remove my-model
 ```
 
 ## 提示词管理
 
 ```bash
 # 自定义提交信息提示词模板
-aimsg prompt
+acmt prompt
 
 # 重置为默认提示词模板
-aimsg reset-prompt
+acmt reset-prompt
 
 ```
 默认提示词模版：

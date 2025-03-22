@@ -2,7 +2,7 @@
 
 [中文文档](./README_CN.md)
 
-[![PyPI version](https://badge.fury.io/py/aimsg.svg)](https://badge.fury.io/py/aimsg)
+[![PyPI version](https://badge.fury.io/py/acmt.svg)](https://badge.fury.io/py/acmt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 
@@ -39,17 +39,17 @@ A CLI tool that generates commit messages using AI models based on your git repo
 brew install pipx
 pipx ensurepath
 
-# Install aimsg
-pipx install aimsg
+# Install acmt
+pipx install acmt
 
-# Upgrade aimsg
-pipx upgrade aimsg
+# Upgrade acmt
+pipx upgrade acmt
 ```
 
 ### Using pip
 
 ```bash
-pip install aimsg
+pip install acmt
 ```
 
 ## Quick Start
@@ -57,61 +57,61 @@ pip install aimsg
 1. Initialize with your preferred model and API key:
 
 ```bash
-aimsg init
+acmt init
 ```
 
 2. Stage your changes and generate commit message:
 
 ```bash
 git add .
-aimsg commit
+acmt commit
 ```
 
 3. Get help or version information:
 
 ```bash
 # Show version
-aimsg --version
+acmt --version
 
 # Show all available commands
-aimsg --help
+acmt --help
 
 # Show help for a specific command
-aimsg model --help
-aimsg commit --help
+acmt model --help
+acmt commit --help
 
 # Show current configuration
-aimsg current
+acmt current
 ```
 
 ## Configuration
 
-Configure `aimsg` in order of priority:
+Configure `acmt` in order of priority:
 
 1. Project-level `.env` file (highest priority)
 
 ```bash
-AIMSG_API_KEY=your_api_key
-AIMSG_API_BASE=your_api_base
-AIMSG_MODEL=your_model
-AIMSG_PROMPT=your_prompt
+ACMT_API_KEY=your_api_key
+ACMT_API_BASE=your_api_base
+ACMT_MODEL=your_model
+ACMT_PROMPT=your_prompt
 ```
 
 2. Environment variables（Secondary priority）
 
 ```bash
-export AIMSG_API_KEY=your_api_key
-export AIMSG_API_BASE=your_api_base
-export AIMSG_MODEL=your_model
-export AIMSG_PROMPT=your_prompt
+export ACMT_API_KEY=your_api_key
+export ACMT_API_BASE=your_api_base
+export ACMT_MODEL=your_model
+export ACMT_PROMPT=your_prompt
 ```
 
-3. Global configuration via `aimsg init` (lowest priority, default)
+3. Global configuration via `acmt init` (lowest priority, default)
 
 ```bash
-aimsg init
+acmt init
 
-# Creates ~/.config/aimsg/config.json with default settings:
+# Creates ~/.config/acmt/config.json with default settings:
 # - model: your_model
 # - api_base: your_api_base
 # - api_key: your_api_key
@@ -123,23 +123,23 @@ aimsg init
 
 ```bash
 # List available models
-aimsg model list
+acmt model list
 
 # Add custom model
-aimsg model add my-model https://api.example.com/v1
+acmt model add my-model https://api.example.com/v1
 
 # Remove custom model
-aimsg model remove my-model
+acmt model remove my-model
 ```
 
 ## Prompt Management
 
 ```bash
 # Customize commit message prompt template
-aimsg prompt
+acmt prompt
 
 # Reset to default prompt template
-aimsg reset-prompt
+acmt reset-prompt
 ```
 
 Default prompt template:

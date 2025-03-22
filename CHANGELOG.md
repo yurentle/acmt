@@ -41,8 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improved model management functionality
-  - Simplified `aimsg init` command to show a clear list of models with current selection
-  - Enhanced `aimsg model list` command to group models by providers with descriptions
+  - Simplified `acmt init` command to show a clear list of models with current selection
+  - Enhanced `acmt model list` command to group models by providers with descriptions
   - Removed redundant `model use` and `model select` commands in favor of `init`
 - Updated documentation
   - Added comprehensive API endpoint list for all supported models
@@ -62,13 +62,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom model support
 - Environment variable configuration
 - Basic CLI commands:
-  - `aimsg init`: Initialize configuration
-  - `aimsg commit`: Generate commit message
-  - `aimsg model`: Manage AI models
+  - `acmt init`: Initialize configuration
+  - `acmt commit`: Generate commit message
+  - `acmt model`: Manage AI models
 
-[0.2.3]: https://github.com/yurentle/aimsg/compare/v0.2.2...v0.2.3
-[0.2.2]: https://github.com/yurentle/aimsg/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/yurentle/aimsg/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/yurentle/aimsg/compare/v0.1.2...v0.2.0
-[0.1.2]: https://github.com/yurentle/aimsg/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/yurentle/aimsg/releases/tag/v0.1.1
+[0.2.3]: https://github.com/yurentle/acmt/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/yurentle/acmt/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/yurentle/acmt/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/yurentle/acmt/compare/v0.1.2...v0.2.0
+[0.1.2]: https://github.com/yurentle/acmt/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/yurentle/acmt/releases/tag/v0.1.1

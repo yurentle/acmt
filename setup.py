@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="aimsg",
+    name="acmt",
     version="0.2.3",
     packages=find_packages(),
     install_requires=[
@@ -12,7 +12,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "aimsg=aimsg.cli:cli",
+            "acmt=acmt.cli:cli",
         ],
     },
     author="yurentle",
@@ -20,7 +20,7 @@ setup(
     description="A CLI tool to generate commit messages using OpenAI",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yurentle/aimsg",
+    url="https://github.com/yurentle/acmt",
     python_requires=">=3.7",
     classifiers=[
         "Development Status :: 4 - Beta",

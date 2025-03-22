@@ -11,7 +11,7 @@ import sys
 load_dotenv()
 
 @click.group()
-@click.version_option(__version__, prog_name='aimsg', message='%(prog)s version %(version)s')
+@click.version_option(__version__, prog_name='acmt', message='%(prog)s version %(version)s')
 def cli():
     """AI-powered Git commit message generator."""
     pass
@@ -276,8 +276,8 @@ def list_models():
         # 显示说明
         click.echo("Note:")
         click.echo("  * indicates the currently selected model")
-        click.echo("  Use 'aimsg init' to change the current model")
-        click.echo("  Use 'aimsg model add' to add a custom model")
+        click.echo("  Use 'acmt init' to change the current model")
+        click.echo("  Use 'acmt model add' to add a custom model")
         
     except Exception as e:
         click.echo(f"Error: {str(e)}", err=True)
