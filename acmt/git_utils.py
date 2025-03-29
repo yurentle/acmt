@@ -62,8 +62,8 @@ def get_staged_diff() -> tuple[Optional[str], Optional[List[str]]]:
         os.chdir(git_root)
 
         try:
-            # 获取所有暂存的文件列表
-            returncode, stdout, _ = run_git_command(['git', 'diff', '--cached', '--name-status'])
+            # 获取所有暂存的文件列表，包括重命名操作
+            returncode, stdout, _ = run_git_command(['git', 'diff', '--cached', '--name-status', '-M'])
             if returncode != 0:
                 return None, None
 
@@ -72,9 +72,16 @@ def get_staged_diff() -> tuple[Optional[str], Optional[List[str]]]:
             for line in stdout.strip().split('\n'):
                 if not line:
                     continue
-                # 分割状态和文件名（例如：'M file.txt' 或 'D file.txt'）
-                parts = line.split(maxsplit=1)
-                if len(parts) == 2:
+                # 分割状态和文件名
+                parts = line.split(maxsplit=2)  # 使用 maxsplit=2 来处理重命名操作
+                status = parts[0]
+                
+                if status.startswith('R'):  # 处理重命名操作
+                    if len(parts) >= 3:
+                        # 对于重命名操作，我们需要同时记录新旧文件名
+                        old_file, new_file = parts[1], parts[2]
+                        staged_files.extend([old_file, new_file])
+                elif len(parts) >= 2:
                     staged_files.append(parts[1])
 
             if not staged_files:
